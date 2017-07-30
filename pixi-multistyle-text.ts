@@ -53,7 +53,7 @@ export interface MstDebugOptions {
 	}
 }
 
-export default class MultiStyleText extends PIXI.Text {
+export class MultiStyleText extends PIXI.Text {
 	private static DEFAULT_TAG_STYLE: ExtendedTextStyle = {
 		align: "left",
 		breakWords: false,
@@ -146,7 +146,7 @@ export default class MultiStyleText extends PIXI.Text {
 		this.dirty = true;
 	}
 
-	private _getTextDataPerLine (lines: string[]) {
+	private _getTextDataPerLine(lines: string[]) {
 		let outputTextData: TextData[][] = [];
 		let tags = Object.keys(this.textStyles).join("|");
 		let re = new RegExp(`<\/?(${tags})>`, "g");
@@ -233,7 +233,7 @@ export default class MultiStyleText extends PIXI.Text {
 		let maxDistance = 0;
 		let maxBlur = 0;
 
-		 Object.keys(this.textStyles).forEach((styleKey) => {
+		Object.keys(this.textStyles).forEach((styleKey) => {
 			let { dropShadowDistance, dropShadowBlur } = this.textStyles[styleKey];
 			maxDistance = Math.max(maxDistance, dropShadowDistance || 0);
 			maxBlur = Math.max(maxBlur, dropShadowBlur || 0);
@@ -251,7 +251,7 @@ export default class MultiStyleText extends PIXI.Text {
 		let textStyles = this.textStyles;
 		let outputText = this.text;
 
-		if(this._style.wordWrap) {
+		if (this._style.wordWrap) {
 			outputText = this.wordWrap(this.text);
 		}
 
@@ -300,7 +300,7 @@ export default class MultiStyleText extends PIXI.Text {
 
 				// save the height
 				outputTextData[i][j].height =
-						outputTextData[i][j].fontProperties.fontSize + outputTextData[i][j].style.strokeThickness;
+					outputTextData[i][j].fontProperties.fontSize + outputTextData[i][j].style.strokeThickness;
 
 				if (typeof sty.valign === "number") {
 					lineYMin = Math.min(lineYMin, sty.valign - outputTextData[i][j].fontProperties.descent);
@@ -632,7 +632,7 @@ export default class MultiStyleText extends PIXI.Text {
 								spaceLeft -= characterWidth;
 							}
 						}
-					} else if(this._style.breakWords) {
+					} else if (this._style.breakWords) {
 						result += parts[k];
 						spaceLeft -= partWidth;
 					} else {
@@ -708,3 +708,15 @@ export default class MultiStyleText extends PIXI.Text {
 		return destination;
 	}
 }
+
+
+// interface MultiStyleTextInterface {
+// 	(): MultiStyleText.MultiStyleText;
+// 	ExtendedTextStyle: MultiStyleText.ExtendedTextStyle;
+// 	TextStyleSet: MultiStyleText.TextStyleSet;
+// }
+
+
+// declare module "pixi-multistyle-text" {
+// 	export = MultiStyleTextInterface;
+// }
