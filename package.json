@@ -1,6 +1,6 @@
 {
-  "name": "pixi-multistyle-text",
-  "version": "0.6.0",
+  "name": "pixi-multistyle-text-ohze",
+  "version": "0.6.1",
   "description": "Multi-Style Text for pixi.js",
   "main": "dist/pixi-multistyle-text.js",
   "types": "dist/pixi-multistyle-text.d.ts",
@@ -9,12 +9,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/tleunen/pixi-multistyle-text.git"
+    "url": "git://github.com/ohze/pixi-multistyle-text.git"
   },
   "bugs": {
-    "url": "https://github.com/tleunen/pixi-multistyle-text/issues"
+    "url": "https://github.com/ohze/pixi-multistyle-text/issues"
   },
-  "homepage": "https://github.com/tleunen/pixi-multistyle-text",
+  "homepage": "https://github.com/ohze/pixi-multistyle-text",
   "keywords": [
     "pixi",
     "pixi.js",

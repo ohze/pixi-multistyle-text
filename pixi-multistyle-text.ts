@@ -11,13 +11,13 @@ export interface TextStyleSet {
 	[key: string]: ExtendedTextStyle;
 }
 
-interface FontProperties {
+export interface FontProperties {
 	ascent: number;
 	descent: number;
 	fontSize: number;
 }
 
-interface TextData {
+export interface TextData {
 	text: string;
 	style: ExtendedTextStyle;
 	width: number;
@@ -99,12 +99,12 @@ export default class MultiStyleText extends PIXI.Text {
 		}
 	};
 
-	private textStyles: TextStyleSet;
+	protected textStyles: TextStyleSet;
 
-	constructor(text: string, styles: TextStyleSet) {
+	constructor(text?: string, styles?: TextStyleSet) {
 		super(text);
 
-		this.styles = styles;
+		this.styles = styles || {};
 	}
 
 	public set styles(styles: TextStyleSet) {
@@ -146,7 +146,7 @@ export default class MultiStyleText extends PIXI.Text {
 		this.dirty = true;
 	}
 
-	private _getTextDataPerLine (lines: string[]) {
+	protected _getTextDataPerLine (lines: string[]) {
 		let outputTextData: TextData[][] = [];
 		let tags = Object.keys(this.textStyles).join("|");
 		let re = new RegExp(`<\/?(${tags})>`, "g");
@@ -214,11 +214,11 @@ export default class MultiStyleText extends PIXI.Text {
 		return outputTextData;
 	}
 
-	private getFontString(style: ExtendedTextStyle): string {
+	protected getFontString(style: ExtendedTextStyle): string {
 		return new PIXI.TextStyle(style).toFontString();
 	}
 
-	private createTextData(text: string, style: ExtendedTextStyle, tagName: string): TextData {
+	protected createTextData(text: string, style: ExtendedTextStyle, tagName: string): TextData {
 		return {
 			text,
 			style,
@@ -229,7 +229,7 @@ export default class MultiStyleText extends PIXI.Text {
 		};
 	}
 
-	private getDropShadowPadding(): number {
+	protected getDropShadowPadding(): number {
 		let maxDistance = 0;
 		let maxBlur = 0;
 
