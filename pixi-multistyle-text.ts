@@ -265,14 +265,12 @@ export default class MultiStyleText extends PIXI.Text {
 		let lineWidths: number[] = [];
 		let lineYMins: number[] = [];
 		let lineYMaxs: number[] = [];
-		let baselines: number[] = [];
 		let maxLineWidth = 0;
 
 		for (let i = 0; i < lines.length; i++) {
 			let lineWidth = 0;
 			let lineYMin = 0;
 			let lineYMax = 0;
-			let baseline = 0;
 			for (let j = 0; j < outputTextData[i].length; j++) {
 				let sty = outputTextData[i][j].style;
 
