@@ -1,12 +1,14 @@
 import * as multitext from "./pixi-multistyle-text"
 
-const MultiStyleText = multitext.MultiStyleText;
+const MST = multitext.MultiStyleText;
 
-declare module MultiStyleText {
+declare module MST {
     export type ExtendedTextStyle = multitext.ExtendedTextStyle;
-    export type MstDebugOptions = multitext.MstDebugOptions;
     export type TextStyleSet = multitext.TextStyleSet;
+    export type FontProperties = multitext.FontProperties;
+    export type TextData = multitext.TextData;
+    export type MstDebugOptions = multitext.MstDebugOptions;
     export type MultiStyleText = multitext.MultiStyleText;
 }
 
-export = MultiStyleText;
+export = MST;
