@@ -8,13 +8,14 @@
 		"removeComments": true,
 		"sourceMap": true,
 		"noImplicitAny": true,
-		"outDir": "dist",
+		"outDir": "build",
 		"declaration": true,
 		"pretty": true
 	},
 	"exclude": [
 		"node_modules",
 		"dist",
+		"build",
 		"bower_components"
 	],
 	"compileOnSave": false,
