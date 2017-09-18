@@ -53,7 +53,7 @@ export interface MstDebugOptions {
 	}
 }
 
-export default class MultiStyleText extends PIXI.Text {
+export class MultiStyleText extends PIXI.Text {
 	private static DEFAULT_TAG_STYLE: ExtendedTextStyle = {
 		align: "left",
 		breakWords: false,
