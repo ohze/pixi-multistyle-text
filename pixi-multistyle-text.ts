@@ -2,30 +2,6 @@
 
 "use strict";
 
-export interface ExtendedTextStyle extends PIXI.TextStyleOptions {
-	valign?: "top" | "middle" | "bottom" | "baseline" | number;
-	debug?: boolean;
-}
-
-export interface TextStyleSet {
-	[key: string]: ExtendedTextStyle;
-}
-
-export interface FontProperties {
-	ascent: number;
-	descent: number;
-	fontSize: number;
-}
-
-export interface TextData {
-	text: string;
-	style: ExtendedTextStyle;
-	width: number;
-	height: number;
-	fontProperties: FontProperties;
-	tagName: string;
-}
-
 interface TextDrawingData {
 	text: string;
 	style: ExtendedTextStyle;
@@ -37,23 +13,7 @@ interface TextDrawingData {
 	tagName: string;
 }
 
-export interface MstDebugOptions {
-	spans: {
-		enabled?: boolean;
-		baseline?: string;
-		top?: string;
-		bottom?: string;
-		bounding?: string;
-		text?: boolean;
-	};
-	objects: {
-		enabled?: boolean;
-		bounding?: string;
-		text?: boolean;
-	}
-}
-
-export default class MultiStyleText extends PIXI.Text {
+export = class MultiStyleText extends PIXI.Text {
 	private static DEFAULT_TAG_STYLE: ExtendedTextStyle = {
 		align: "left",
 		breakWords: false,
