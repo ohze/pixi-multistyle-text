@@ -1,6 +1,6 @@
 {
   "name": "pixi-multistyle-text-ohze",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Multi-Style Text for pixi.js",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
