@@ -577,7 +577,6 @@ export default class MultiStyleText extends PIXI.Text {
 		let result = '';
 		let tags = Object.keys(this.textStyles).join("|");
 		let re = new RegExp(`(<\/?(${tags})>)`, "g");
-
 		const lines = text.split("\n");
 		const wordWrapWidth = this._style.wordWrapWidth;
 		let styleStack = [this.assign({}, this.textStyles["default"])];
@@ -589,13 +588,13 @@ export default class MultiStyleText extends PIXI.Text {
 
 			for (let j = 0; j < words.length; j++) {
 				const parts = words[j].split(re);
-
 				for (let k = 0; k < parts.length; k++) {
 					if (re.test(parts[k])) {
-						result += parts[k];
+                        result += parts[k];
 						if (parts[k][1] === "/") {
 							k++;
 							styleStack.pop();
+							result += " ";
 						} else {
 							k++;
 							styleStack.push(this.assign({}, styleStack[styleStack.length - 1], this.textStyles[parts[k]]));
@@ -603,6 +602,10 @@ export default class MultiStyleText extends PIXI.Text {
 						this.context.font = this.getFontString(styleStack[styleStack.length - 1]);
 						continue;
 					}
+
+					if(parts[k] === ""){
+					    continue;
+                    }
 
 					const partWidth = this.context.measureText(parts[k]).width;
 
@@ -630,9 +633,15 @@ export default class MultiStyleText extends PIXI.Text {
 								spaceLeft -= characterWidth;
 							}
 						}
+                        if (k === 0) {
+                            result += " ";
+                        }
 					} else if(this._style.breakWords) {
 						result += parts[k];
-						spaceLeft -= partWidth;
+                        if (k === 0) {
+                            result += " ";
+                        }
+                        spaceLeft -= partWidth;
 					} else {
 						const paddedPartWidth =
 							partWidth + (k === 0 ? this.context.measureText(" ").width : 0);
@@ -644,6 +653,9 @@ export default class MultiStyleText extends PIXI.Text {
 								result += "\n";
 							}
 							result += parts[k];
+                            if (k === 0) {
+                                result += " ";
+                            }
 							spaceLeft = wordWrapWidth - partWidth;
 						} else {
 							spaceLeft -= paddedPartWidth;
@@ -657,7 +669,6 @@ export default class MultiStyleText extends PIXI.Text {
 					}
 				}
 			}
-
 			if (i < lines.length - 1) {
 				result += '\n';
 			}
