@@ -585,16 +585,20 @@ export default class MultiStyleText extends PIXI.Text {
 		for (let i = 0; i < lines.length; i++) {
 			let spaceLeft = wordWrapWidth;
 			const words = lines[i].split(" ");
+            console.log("wordWrap: ", words);
 
 			for (let j = 0; j < words.length; j++) {
 				const parts = words[j].split(re);
+				console.log("parts:", parts);
 				for (let k = 0; k < parts.length; k++) {
 					if (re.test(parts[k])) {
                         result += parts[k];
+                        console.log("parts[k]", parts[k]);
 						if (parts[k][1] === "/") {
 							k++;
 							styleStack.pop();
-							result += " ";
+							result = this.checkSpace(result);
+                            console.log("wordWrap-1: ", result);
 						} else {
 							k++;
 							styleStack.push(this.assign({}, styleStack[styleStack.length - 1], this.textStyles[parts[k]]));
@@ -610,37 +614,10 @@ export default class MultiStyleText extends PIXI.Text {
 					const partWidth = this.context.measureText(parts[k]).width;
 
 					if (this._style.breakWords && partWidth > spaceLeft) {
-						// Part should be split in the middle
-						const characters = parts[k].split('');
-
-						if (j > 0 && k === 0) {
-							result += " ";
-							spaceLeft -= this.context.measureText(" ").width;
-						}
-
-						for (let c = 0; c < characters.length; c++) {
-							const characterWidth = this.context.measureText(characters[c]).width;
-
-							if (characterWidth > spaceLeft) {
-								result += `\n${characters[c]}`;
-								spaceLeft = wordWrapWidth - characterWidth;
-							} else {
-								if (j > 0 && k === 0 && c === 0) {
-									result += " ";
-								}
-
-								result += characters[c];
-								spaceLeft -= characterWidth;
-							}
-						}
-                        if (k === 0) {
-                            result += " ";
-                        }
+						result += `\n${parts[k]}` + " ";
+                        spaceLeft = wordWrapWidth - partWidth;
 					} else if(this._style.breakWords) {
 						result += parts[k];
-                        if (k === 0) {
-                            result += " ";
-                        }
                         spaceLeft -= partWidth;
 					} else {
 						const paddedPartWidth =
@@ -653,21 +630,14 @@ export default class MultiStyleText extends PIXI.Text {
 								result += "\n";
 							}
 							result += parts[k];
-                            if (k === 0) {
-                                result += " ";
-                            }
 							spaceLeft = wordWrapWidth - partWidth;
 						} else {
 							spaceLeft -= paddedPartWidth;
-
-							if (k === 0) {
-								result += " ";
-							}
-
 							result += parts[k];
 						}
 					}
 				}
+                result = this.checkSpace(result);
 			}
 			if (i < lines.length - 1) {
 				result += '\n';
@@ -676,6 +646,14 @@ export default class MultiStyleText extends PIXI.Text {
 
 		return result;
 	}
+
+	protected checkSpace=(result:string)=>{
+        let c:string = result.slice(result.length - 1, result.length);
+        if(c !== " "){
+            result += " ";
+        }
+        return result;
+	};
 
 	protected updateTexture() {
 		const texture = this._texture;
