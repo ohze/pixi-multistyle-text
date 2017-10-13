@@ -1,49 +1,32 @@
 /// <reference types="pixi.js" />
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-var MultiStyleText = (function (_super) {
-    __extends(MultiStyleText, _super);
-    function MultiStyleText(text, styles) {
-        var _this = _super.call(this, text) || this;
-        _this.checkSpace = function (result) {
-            var c = result.slice(result.length - 1, result.length);
+export default class MultiStyleText extends PIXI.Text {
+    constructor(text, styles) {
+        super(text);
+        this.checkSpace = (result) => {
+            let c = result.slice(result.length - 1, result.length);
             if (c !== " ") {
                 result += " ";
             }
             return result;
         };
-        _this.styles = styles || {};
-        return _this;
+        this.styles = styles || {};
     }
-    Object.defineProperty(MultiStyleText.prototype, "styles", {
-        set: function (styles) {
-            this.textStyles = {};
-            this.textStyles["default"] = this.assign({}, MultiStyleText.DEFAULT_TAG_STYLE);
-            for (var style in styles) {
-                if (style === "default") {
-                    this.assign(this.textStyles["default"], styles[style]);
-                }
-                else {
-                    this.textStyles[style] = this.assign({}, styles[style]);
-                }
+    set styles(styles) {
+        this.textStyles = {};
+        this.textStyles["default"] = this.assign({}, MultiStyleText.DEFAULT_TAG_STYLE);
+        for (let style in styles) {
+            if (style === "default") {
+                this.assign(this.textStyles["default"], styles[style]);
             }
-            this._style = new PIXI.TextStyle(this.textStyles["default"]);
-            this.dirty = true;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    MultiStyleText.prototype.setTagStyle = function (tag, style) {
+            else {
+                this.textStyles[style] = this.assign({}, styles[style]);
+            }
+        }
+        this._style = new PIXI.TextStyle(this.textStyles["default"]);
+        this.dirty = true;
+    }
+    setTagStyle(tag, style) {
         if (tag in this.textStyles) {
             this.assign(this.textStyles[tag], style);
         }
@@ -52,8 +35,8 @@ var MultiStyleText = (function (_super) {
         }
         this._style = new PIXI.TextStyle(this.textStyles["default"]);
         this.dirty = true;
-    };
-    MultiStyleText.prototype.deleteTagStyle = function (tag) {
+    }
+    deleteTagStyle(tag) {
         if (tag === "default") {
             this.textStyles["default"] = this.assign({}, MultiStyleText.DEFAULT_TAG_STYLE);
         }
@@ -62,19 +45,19 @@ var MultiStyleText = (function (_super) {
         }
         this._style = new PIXI.TextStyle(this.textStyles["default"]);
         this.dirty = true;
-    };
-    MultiStyleText.prototype._getTextDataPerLine = function (lines) {
-        var outputTextData = [];
-        var tags = Object.keys(this.textStyles).join("|");
-        var re = new RegExp("</?(" + tags + ")>", "g");
-        var styleStack = [this.assign({}, this.textStyles["default"])];
-        var tagNameStack = ["default"];
+    }
+    _getTextDataPerLine(lines) {
+        let outputTextData = [];
+        let tags = Object.keys(this.textStyles).join("|");
+        let re = new RegExp(`<\/?(${tags})>`, "g");
+        let styleStack = [this.assign({}, this.textStyles["default"])];
+        let tagNameStack = ["default"];
         // determine the group of word for each line
-        for (var i = 0; i < lines.length; i++) {
-            var lineTextData = [];
+        for (let i = 0; i < lines.length; i++) {
+            let lineTextData = [];
             // find tags inside the string
-            var matches = [];
-            var matchArray = void 0;
+            let matches = [];
+            let matchArray;
             while (matchArray = re.exec(lines[i])) {
                 matches.push(matchArray);
             }
@@ -84,8 +67,8 @@ var MultiStyleText = (function (_super) {
             }
             else {
                 // We got a match! add the text with the needed style
-                var currentSearchIdx = 0;
-                for (var j = 0; j < matches.length; j++) {
+                let currentSearchIdx = 0;
+                for (let j = 0; j < matches.length; j++) {
                     // if index > 0, it means we have characters before the match,
                     // so we need to add it with the default style
                     if (matches[j].index > currentSearchIdx) {
@@ -112,57 +95,55 @@ var MultiStyleText = (function (_super) {
             outputTextData.push(lineTextData);
         }
         return outputTextData;
-    };
-    MultiStyleText.prototype.getFontString = function (style) {
+    }
+    getFontString(style) {
         return new PIXI.TextStyle(style).toFontString();
-    };
-    MultiStyleText.prototype.createTextData = function (text, style, tagName) {
+    }
+    createTextData(text, style, tagName) {
         return {
-            text: text,
-            style: style,
+            text,
+            style,
             width: 0,
             height: 0,
             fontProperties: undefined,
-            tagName: tagName
+            tagName
         };
-    };
-    MultiStyleText.prototype.getDropShadowPadding = function () {
-        var _this = this;
-        var maxDistance = 0;
-        var maxBlur = 0;
-        Object.keys(this.textStyles).forEach(function (styleKey) {
-            var _a = _this.textStyles[styleKey], dropShadowDistance = _a.dropShadowDistance, dropShadowBlur = _a.dropShadowBlur;
+    }
+    getDropShadowPadding() {
+        let maxDistance = 0;
+        let maxBlur = 0;
+        Object.keys(this.textStyles).forEach((styleKey) => {
+            let { dropShadowDistance, dropShadowBlur } = this.textStyles[styleKey];
             maxDistance = Math.max(maxDistance, dropShadowDistance || 0);
             maxBlur = Math.max(maxBlur, dropShadowBlur || 0);
         });
         return maxDistance + maxBlur;
-    };
-    MultiStyleText.prototype.updateText = function () {
-        var _this = this;
+    }
+    updateText() {
         if (!this.dirty) {
             return;
         }
         this.texture.baseTexture.resolution = this.resolution;
-        var textStyles = this.textStyles;
-        var outputText = this.text;
+        let textStyles = this.textStyles;
+        let outputText = this.text;
         if (this._style.wordWrap) {
             outputText = this.wordWrap(this.text);
         }
         // split text into lines
-        var lines = outputText.split(/(?:\r\n|\r|\n)/);
+        let lines = outputText.split(/(?:\r\n|\r|\n)/);
         // get the text data with specific styles
-        var outputTextData = this._getTextDataPerLine(lines);
+        let outputTextData = this._getTextDataPerLine(lines);
         // calculate text width and height
-        var lineWidths = [];
-        var lineYMins = [];
-        var lineYMaxs = [];
-        var maxLineWidth = 0;
-        for (var i = 0; i < lines.length; i++) {
-            var lineWidth = 0;
-            var lineYMin = 0;
-            var lineYMax = 0;
-            for (var j = 0; j < outputTextData[i].length; j++) {
-                var sty = outputTextData[i][j].style;
+        let lineWidths = [];
+        let lineYMins = [];
+        let lineYMaxs = [];
+        let maxLineWidth = 0;
+        for (let i = 0; i < lines.length; i++) {
+            let lineWidth = 0;
+            let lineYMin = 0;
+            let lineYMax = 0;
+            for (let j = 0; j < outputTextData[i].length; j++) {
+                let sty = outputTextData[i][j].style;
                 this.context.font = this.getFontString(sty);
                 // save the width
                 outputTextData[i][j].width = this.context.measureText(outputTextData[i][j].text).width;
@@ -196,24 +177,24 @@ var MultiStyleText = (function (_super) {
             maxLineWidth = Math.max(maxLineWidth, lineWidth);
         }
         // transform styles in array
-        var stylesArray = Object.keys(textStyles).map(function (key) { return textStyles[key]; });
-        var maxStrokeThickness = stylesArray.reduce(function (prev, cur) { return Math.max(prev, cur.strokeThickness || 0); }, 0);
-        var dropShadowPadding = this.getDropShadowPadding();
-        var totalHeight = lineYMaxs.reduce(function (prev, cur) { return prev + cur; }, 0) - lineYMins.reduce(function (prev, cur) { return prev + cur; }, 0);
+        let stylesArray = Object.keys(textStyles).map((key) => textStyles[key]);
+        let maxStrokeThickness = stylesArray.reduce((prev, cur) => Math.max(prev, cur.strokeThickness || 0), 0);
+        let dropShadowPadding = this.getDropShadowPadding();
+        let totalHeight = lineYMaxs.reduce((prev, cur) => prev + cur, 0) - lineYMins.reduce((prev, cur) => prev + cur, 0);
         // define the right width and height
-        var width = maxLineWidth + maxStrokeThickness + 2 * dropShadowPadding;
-        var height = totalHeight + 2 * dropShadowPadding;
+        let width = maxLineWidth + maxStrokeThickness + 2 * dropShadowPadding;
+        let height = totalHeight + 2 * dropShadowPadding;
         this.canvas.width = (width + this.context.lineWidth) * this.resolution;
         this.canvas.height = height * this.resolution;
         this.context.scale(this.resolution, this.resolution);
         this.context.textBaseline = "alphabetic";
         this.context.lineJoin = "round";
-        var basePositionY = dropShadowPadding;
-        var drawingData = [];
+        let basePositionY = dropShadowPadding;
+        let drawingData = [];
         // Compute the drawing data
-        for (var i = 0; i < outputTextData.length; i++) {
-            var line = outputTextData[i];
-            var linePositionX = void 0;
+        for (let i = 0; i < outputTextData.length; i++) {
+            let line = outputTextData[i];
+            let linePositionX;
             switch (this._style.align) {
                 case "left":
                     linePositionX = dropShadowPadding;
@@ -225,10 +206,10 @@ var MultiStyleText = (function (_super) {
                     linePositionX = dropShadowPadding + maxLineWidth - lineWidths[i];
                     break;
             }
-            for (var j = 0; j < line.length; j++) {
-                var _a = line[j], style = _a.style, text = _a.text, fontProperties = _a.fontProperties, width_1 = _a.width, height_1 = _a.height, tagName = _a.tagName;
+            for (let j = 0; j < line.length; j++) {
+                let { style, text, fontProperties, width, height, tagName } = line[j];
                 linePositionX += maxStrokeThickness / 2;
-                var linePositionY = maxStrokeThickness / 2 + basePositionY + fontProperties.ascent;
+                let linePositionY = maxStrokeThickness / 2 + basePositionY + fontProperties.ascent;
                 switch (style.valign) {
                     case "top":
                         // no need to do anything
@@ -249,32 +230,32 @@ var MultiStyleText = (function (_super) {
                 }
                 if (style.letterSpacing === 0) {
                     drawingData.push({
-                        text: text,
-                        style: style,
+                        text,
+                        style,
                         x: linePositionX,
                         y: linePositionY,
-                        width: width_1,
+                        width,
                         ascent: fontProperties.ascent,
                         descent: fontProperties.descent,
-                        tagName: tagName
+                        tagName
                     });
                     linePositionX += line[j].width;
                 }
                 else {
                     this.context.font = this.getFontString(line[j].style);
-                    for (var k = 0; k < text.length; k++) {
+                    for (let k = 0; k < text.length; k++) {
                         if (k > 0 || j > 0) {
                             linePositionX += style.letterSpacing / 2;
                         }
                         drawingData.push({
                             text: text.charAt(k),
-                            style: style,
+                            style,
                             x: linePositionX,
                             y: linePositionY,
-                            width: width_1,
+                            width,
                             ascent: fontProperties.ascent,
                             descent: fontProperties.descent,
-                            tagName: tagName
+                            tagName
                         });
                         linePositionX += this.context.measureText(text.charAt(k)).width;
                         if (k < text.length - 1 || j < line.length - 1) {
@@ -288,101 +269,99 @@ var MultiStyleText = (function (_super) {
         }
         this.context.save();
         // First pass: draw the shadows only
-        drawingData.forEach(function (_a) {
-            var style = _a.style, text = _a.text, x = _a.x, y = _a.y;
+        drawingData.forEach(({ style, text, x, y }) => {
             if (!style.dropShadow) {
                 return; // This text doesn't have a shadow
             }
-            _this.context.font = _this.getFontString(style);
-            var dropFillStyle = style.dropShadowColor;
+            this.context.font = this.getFontString(style);
+            let dropFillStyle = style.dropShadowColor;
             if (typeof dropFillStyle === "number") {
                 dropFillStyle = PIXI.utils.hex2string(dropFillStyle);
             }
-            _this.context.shadowColor = dropFillStyle;
-            _this.context.shadowBlur = style.dropShadowBlur;
-            _this.context.shadowOffsetX = Math.cos(style.dropShadowAngle) * style.dropShadowDistance * _this.resolution;
-            _this.context.shadowOffsetY = Math.sin(style.dropShadowAngle) * style.dropShadowDistance * _this.resolution;
-            _this.context.fillText(text, x, y);
+            this.context.shadowColor = dropFillStyle;
+            this.context.shadowBlur = style.dropShadowBlur;
+            this.context.shadowOffsetX = Math.cos(style.dropShadowAngle) * style.dropShadowDistance * this.resolution;
+            this.context.shadowOffsetY = Math.sin(style.dropShadowAngle) * style.dropShadowDistance * this.resolution;
+            this.context.fillText(text, x, y);
         });
         this.context.restore();
         // Second pass: draw strokes and fills
-        drawingData.forEach(function (_a) {
-            var style = _a.style, text = _a.text, x = _a.x, y = _a.y, width = _a.width, ascent = _a.ascent, descent = _a.descent, tagName = _a.tagName;
-            _this.context.font = _this.getFontString(style);
-            var strokeStyle = style.stroke;
+        drawingData.forEach(({ style, text, x, y, width, ascent, descent, tagName }) => {
+            this.context.font = this.getFontString(style);
+            let strokeStyle = style.stroke;
             if (typeof strokeStyle === "number") {
                 strokeStyle = PIXI.utils.hex2string(strokeStyle);
             }
-            _this.context.strokeStyle = strokeStyle;
-            _this.context.lineWidth = style.strokeThickness;
+            this.context.strokeStyle = strokeStyle;
+            this.context.lineWidth = style.strokeThickness;
             // set canvas text styles
-            var fillStyle = style.fill;
+            let fillStyle = style.fill;
             if (typeof fillStyle === "number") {
                 fillStyle = PIXI.utils.hex2string(fillStyle);
             }
             else if (Array.isArray(fillStyle)) {
-                for (var i = 0; i < fillStyle.length; i++) {
-                    var fill = fillStyle[i];
+                for (let i = 0; i < fillStyle.length; i++) {
+                    let fill = fillStyle[i];
                     if (typeof fill === "number") {
                         fillStyle[i] = PIXI.utils.hex2string(fill);
                     }
                 }
             }
-            _this.context.fillStyle = _this._generateFillStyle(new PIXI.TextStyle(style), [text]);
+            this.context.fillStyle = this._generateFillStyle(new PIXI.TextStyle(style), [text]);
             // Typecast required for proper typechecking
             if (style.stroke && style.strokeThickness) {
-                _this.context.strokeText(text, x, y);
+                this.context.strokeText(text, x, y);
             }
             if (style.fill) {
-                _this.context.fillText(text, x, y);
+                this.context.fillText(text, x, y);
             }
-            var debugSpan = style.debug === undefined
+            let debugSpan = style.debug === undefined
                 ? MultiStyleText.debugOptions.spans.enabled
                 : style.debug;
             if (debugSpan) {
-                _this.context.lineWidth = 1;
+                this.context.lineWidth = 1;
                 if (MultiStyleText.debugOptions.spans.bounding) {
-                    _this.context.fillStyle = MultiStyleText.debugOptions.spans.bounding;
-                    _this.context.strokeStyle = MultiStyleText.debugOptions.spans.bounding;
-                    _this.context.beginPath();
-                    _this.context.rect(x, y - ascent, width, ascent + descent);
-                    _this.context.fill();
-                    _this.context.stroke();
-                    _this.context.stroke(); // yes, twice
+                    this.context.fillStyle = MultiStyleText.debugOptions.spans.bounding;
+                    this.context.strokeStyle = MultiStyleText.debugOptions.spans.bounding;
+                    this.context.beginPath();
+                    this.context.rect(x, y - ascent, width, ascent + descent);
+                    this.context.fill();
+                    this.context.stroke();
+                    this.context.stroke(); // yes, twice
                 }
                 if (MultiStyleText.debugOptions.spans.baseline) {
-                    _this.context.strokeStyle = MultiStyleText.debugOptions.spans.baseline;
-                    _this.context.beginPath();
-                    _this.context.moveTo(x, y);
-                    _this.context.lineTo(x + width, y);
-                    _this.context.closePath();
-                    _this.context.stroke();
+                    this.context.strokeStyle = MultiStyleText.debugOptions.spans.baseline;
+                    this.context.beginPath();
+                    this.context.moveTo(x, y);
+                    this.context.lineTo(x + width, y);
+                    this.context.closePath();
+                    this.context.stroke();
                 }
                 if (MultiStyleText.debugOptions.spans.top) {
-                    _this.context.strokeStyle = MultiStyleText.debugOptions.spans.top;
-                    _this.context.beginPath();
-                    _this.context.moveTo(x, y - ascent);
-                    _this.context.lineTo(x + width, y - ascent);
-                    _this.context.closePath();
-                    _this.context.stroke();
+                    this.context.strokeStyle = MultiStyleText.debugOptions.spans.top;
+                    this.context.beginPath();
+                    this.context.moveTo(x, y - ascent);
+                    this.context.lineTo(x + width, y - ascent);
+                    this.context.closePath();
+                    this.context.stroke();
                 }
                 if (MultiStyleText.debugOptions.spans.bottom) {
-                    _this.context.strokeStyle = MultiStyleText.debugOptions.spans.bottom;
-                    _this.context.beginPath();
-                    _this.context.moveTo(x, y + descent);
-                    _this.context.lineTo(x + width, y + descent);
-                    _this.context.closePath();
-                    _this.context.stroke();
+                    this.context.strokeStyle = MultiStyleText.debugOptions.spans.bottom;
+                    this.context.beginPath();
+                    this.context.moveTo(x, y + descent);
+                    this.context.lineTo(x + width, y + descent);
+                    this.context.closePath();
+                    this.context.stroke();
                 }
                 if (MultiStyleText.debugOptions.spans.text) {
-                    _this.context.fillStyle = "#ffffff";
-                    _this.context.strokeStyle = "#000000";
-                    _this.context.lineWidth = 2;
-                    _this.context.font = "8px monospace";
-                    _this.context.strokeText(tagName, x, y - ascent + 8);
-                    _this.context.fillText(tagName, x, y - ascent + 8);
-                    _this.context.strokeText(width.toFixed(2) + "x" + (ascent + descent).toFixed(2), x, y - ascent + 16);
-                    _this.context.fillText(width.toFixed(2) + "x" + (ascent + descent).toFixed(2), x, y - ascent + 16);
+                    this.context.fillStyle = "#ffffff";
+                    this.context.strokeStyle = "#000000";
+                    this.context.lineWidth = 2;
+                    this.context.font = "8px monospace";
+                    this.context.strokeText(tagName, x, y - ascent + 8);
+                    this.context.fillText(tagName, x, y - ascent + 8);
+                    this.context.strokeText(`${width.toFixed(2)}x${(ascent + descent).toFixed(2)}`, x, y - ascent + 16);
+                    this.context.fillText(`${width.toFixed(2)}x${(ascent + descent).toFixed(2)}`, x, y - ascent + 16);
                 }
             }
         });
@@ -398,27 +377,27 @@ var MultiStyleText = (function (_super) {
                 this.context.strokeStyle = "#000000";
                 this.context.lineWidth = 2;
                 this.context.font = "8px monospace";
-                this.context.strokeText(width.toFixed(2) + "x" + height.toFixed(2), 0, 8, width);
-                this.context.fillText(width.toFixed(2) + "x" + height.toFixed(2), 0, 8, width);
+                this.context.strokeText(`${width.toFixed(2)}x${height.toFixed(2)}`, 0, 8, width);
+                this.context.fillText(`${width.toFixed(2)}x${height.toFixed(2)}`, 0, 8, width);
             }
         }
         this.updateTexture();
-    };
-    MultiStyleText.prototype.wordWrap = function (text) {
+    }
+    wordWrap(text) {
         // Greedy wrapping algorithm that will wrap words as the line grows longer than its horizontal bounds.
-        var result = '';
-        var tags = Object.keys(this.textStyles).join("|");
-        var re = new RegExp("(</?(" + tags + ")>)", "g");
-        var lines = text.split("\n");
-        var wordWrapWidth = this._style.wordWrapWidth;
-        var styleStack = [this.assign({}, this.textStyles["default"])];
+        let result = '';
+        let tags = Object.keys(this.textStyles).join("|");
+        let re = new RegExp(`(<\/?(${tags})>)`, "g");
+        const lines = text.split("\n");
+        const wordWrapWidth = this._style.wordWrapWidth;
+        let styleStack = [this.assign({}, this.textStyles["default"])];
         this.context.font = this.getFontString(this.textStyles["default"]);
-        for (var i = 0; i < lines.length; i++) {
-            var spaceLeft = wordWrapWidth;
-            var words = lines[i].split(" ");
-            for (var j = 0; j < words.length; j++) {
-                var parts = words[j].split(re);
-                for (var k = 0; k < parts.length; k++) {
+        for (let i = 0; i < lines.length; i++) {
+            let spaceLeft = wordWrapWidth;
+            const words = lines[i].split(" ");
+            for (let j = 0; j < words.length; j++) {
+                const parts = words[j].split(re);
+                for (let k = 0; k < parts.length; k++) {
                     if (re.test(parts[k])) {
                         result += parts[k];
                         if (parts[k][1] === "/") {
@@ -435,9 +414,9 @@ var MultiStyleText = (function (_super) {
                     if (parts[k] === "") {
                         continue;
                     }
-                    var partWidth = this.context.measureText(parts[k]).width;
+                    const partWidth = this.context.measureText(parts[k]).width;
                     if (this._style.breakWords && partWidth > spaceLeft) {
-                        result += "\n" + parts[k] + " ";
+                        result += `\n${parts[k]}` + " ";
                         spaceLeft = wordWrapWidth - partWidth;
                     }
                     else if (this._style.breakWords) {
@@ -445,7 +424,7 @@ var MultiStyleText = (function (_super) {
                         spaceLeft -= partWidth;
                     }
                     else {
-                        var paddedPartWidth = partWidth + (k === 0 ? this.context.measureText(" ").width : 0);
+                        const paddedPartWidth = partWidth + (k === 0 ? this.context.measureText(" ").width : 0);
                         if (j === 0 || paddedPartWidth > spaceLeft) {
                             // Skip printing the newline if it's the first word of the line that is
                             // greater than the word wrap width.
@@ -468,10 +447,10 @@ var MultiStyleText = (function (_super) {
             }
         }
         return result;
-    };
-    MultiStyleText.prototype.updateTexture = function () {
-        var texture = this._texture;
-        var dropShadowPadding = this.getDropShadowPadding();
+    }
+    updateTexture() {
+        const texture = this._texture;
+        let dropShadowPadding = this.getDropShadowPadding();
         texture.baseTexture.hasLoaded = true;
         texture.baseTexture.resolution = this.resolution;
         texture.baseTexture.realWidth = this.canvas.width;
@@ -488,64 +467,57 @@ var MultiStyleText = (function (_super) {
         this._onTextureUpdate();
         texture.baseTexture.emit('update', texture.baseTexture);
         this.dirty = false;
-    };
+    }
     // Lazy fill for Object.assign
-    MultiStyleText.prototype.assign = function (destination) {
-        var sources = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            sources[_i - 1] = arguments[_i];
-        }
-        for (var _a = 0, sources_1 = sources; _a < sources_1.length; _a++) {
-            var source = sources_1[_a];
-            for (var key in source) {
+    assign(destination, ...sources) {
+        for (let source of sources) {
+            for (let key in source) {
                 destination[key] = source[key];
             }
         }
         return destination;
-    };
-    MultiStyleText.DEFAULT_TAG_STYLE = {
-        align: "left",
-        breakWords: false,
-        // debug intentionally not included
-        dropShadow: false,
-        dropShadowAngle: Math.PI / 6,
-        dropShadowBlur: 0,
-        dropShadowColor: "#000000",
-        dropShadowDistance: 5,
-        fill: "black",
-        fillGradientType: PIXI.TEXT_GRADIENT.LINEAR_VERTICAL,
-        fontFamily: "Arial",
-        fontSize: 26,
-        fontStyle: "normal",
-        fontVariant: "normal",
-        fontWeight: "normal",
-        letterSpacing: 0,
-        lineHeight: 0,
-        lineJoin: "miter",
-        miterLimit: 10,
-        padding: 0,
-        stroke: "black",
-        strokeThickness: 0,
-        textBaseline: "alphabetic",
-        valign: "baseline",
-        wordWrap: false,
-        wordWrapWidth: 100
-    };
-    MultiStyleText.debugOptions = {
-        spans: {
-            enabled: false,
-            baseline: "#44BB44",
-            top: "#BB4444",
-            bottom: "#4444BB",
-            bounding: "rgba(255, 255, 255, 0.1)",
-            text: true
-        },
-        objects: {
-            enabled: false,
-            bounding: "rgba(255, 255, 255, 0.05)",
-            text: true
-        }
-    };
-    return MultiStyleText;
-}(PIXI.Text));
-exports.default = MultiStyleText;
+    }
+}
+MultiStyleText.DEFAULT_TAG_STYLE = {
+    align: "left",
+    breakWords: false,
+    // debug intentionally not included
+    dropShadow: false,
+    dropShadowAngle: Math.PI / 6,
+    dropShadowBlur: 0,
+    dropShadowColor: "#000000",
+    dropShadowDistance: 5,
+    fill: "black",
+    fillGradientType: PIXI.TEXT_GRADIENT.LINEAR_VERTICAL,
+    fontFamily: "Arial",
+    fontSize: 26,
+    fontStyle: "normal",
+    fontVariant: "normal",
+    fontWeight: "normal",
+    letterSpacing: 0,
+    lineHeight: 0,
+    lineJoin: "miter",
+    miterLimit: 10,
+    padding: 0,
+    stroke: "black",
+    strokeThickness: 0,
+    textBaseline: "alphabetic",
+    valign: "baseline",
+    wordWrap: false,
+    wordWrapWidth: 100
+};
+MultiStyleText.debugOptions = {
+    spans: {
+        enabled: false,
+        baseline: "#44BB44",
+        top: "#BB4444",
+        bottom: "#4444BB",
+        bounding: "rgba(255, 255, 255, 0.1)",
+        text: true
+    },
+    objects: {
+        enabled: false,
+        bounding: "rgba(255, 255, 255, 0.05)",
+        text: true
+    }
+};
