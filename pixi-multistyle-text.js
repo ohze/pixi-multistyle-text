@@ -3,6 +3,46 @@
 export default class MultiStyleText extends PIXI.Text {
     constructor(text, styles) {
         super(text);
+        this.sliceString = (str, spaceLeft, wordWrapWidth) => {
+            let countChars = 0;
+            let result = "";
+            let arr = [];
+            for (let m = 0; m < str.length; m++) {
+                let charsWidth = 0;
+                if (m == str.length - 1) {
+                    charsWidth = this.context.measureText(str.slice(countChars, m + 1)).width;
+                }
+                else {
+                    charsWidth = this.context.measureText(str.slice(countChars, m)).width;
+                }
+                if (charsWidth >= spaceLeft) {
+                    arr.push(str.slice(countChars, m));
+                    countChars = m;
+                    spaceLeft = wordWrapWidth;
+                }
+                if (m == str.length - 1 && charsWidth > 0 && charsWidth < wordWrapWidth) {
+                    arr.push(str.slice(countChars, m + 1));
+                    spaceLeft = wordWrapWidth - this.context.measureText(str.slice(countChars, m + 1)).width;
+                }
+            }
+            for (let i = 0; i < arr.length; i++) {
+                if (i == 0) {
+                    result += arr[i];
+                }
+                else if (i == arr.length - 1) {
+                    if (this.context.measureText(arr[i]).width < wordWrapWidth) {
+                        result += ('\n' + arr[i] + " ");
+                    }
+                    else {
+                        result += ('\n' + arr[i]);
+                    }
+                }
+                else {
+                    result += ('\n' + arr[i]);
+                }
+            }
+            return { str: result, spaceLeft: spaceLeft };
+        };
         this.checkSpace = (result) => {
             let c = result.slice(result.length - 1, result.length);
             if (c !== " ") {
@@ -395,8 +435,10 @@ export default class MultiStyleText extends PIXI.Text {
         for (let i = 0; i < lines.length; i++) {
             let spaceLeft = wordWrapWidth;
             const words = lines[i].split(" ");
+            console.log("words", words);
             for (let j = 0; j < words.length; j++) {
                 const parts = words[j].split(re);
+                console.log("parts", parts);
                 for (let k = 0; k < parts.length; k++) {
                     if (re.test(parts[k])) {
                         result += parts[k];
@@ -416,8 +458,15 @@ export default class MultiStyleText extends PIXI.Text {
                     }
                     const partWidth = this.context.measureText(parts[k]).width;
                     if (this._style.breakWords && partWidth > spaceLeft) {
-                        result += `\n${parts[k]}` + " ";
-                        spaceLeft = wordWrapWidth - partWidth;
+                        if (partWidth >= wordWrapWidth) {
+                            let obj = this.sliceString(parts[k], spaceLeft, wordWrapWidth);
+                            result += obj.str;
+                            spaceLeft = obj.spaceLeft;
+                        }
+                        else {
+                            result += `\n${parts[k]}` + " ";
+                            spaceLeft = wordWrapWidth - partWidth;
+                        }
                     }
                     else if (this._style.breakWords) {
                         result += parts[k];
