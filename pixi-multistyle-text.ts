@@ -585,8 +585,10 @@ export default class MultiStyleText extends PIXI.Text {
 		for (let i = 0; i < lines.length; i++) {
 			let spaceLeft = wordWrapWidth;
 			const words = lines[i].split(" ");
+			//console.log("words", words);
 			for (let j = 0; j < words.length; j++) {
 				const parts = words[j].split(re);
+                //console.log("parts", parts);
 				for (let k = 0; k < parts.length; k++) {
 					if (re.test(parts[k])) {
                         result += parts[k];
