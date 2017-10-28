@@ -3,5 +3,3 @@ node_modules/
 .idea/
 /demo/dist
 /demo/index.js*
-/index.js*
-/index.d.ts

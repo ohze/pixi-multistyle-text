@@ -1,12 +1,8 @@
 {
   "name": "pixi-multistyle-text-ohze",
-  "version": "0.6.1",
+  "version": "1.0.0",
   "description": "Multi-Style Text for pixi.js",
-  "main": "dist/pixi-multistyle-text.js",
-  "types": "dist/pixi-multistyle-text.d.ts",
-  "files": [
-    "dist"
-  ],
+  "module": "index.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/ohze/pixi-multistyle-text.git"
@@ -32,16 +28,14 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "@types/pixi.js": "^4.5.0",
-    "browserify": "^14.4.0",
-    "standard-version": "^4.2.0",
-    "tsify": "^3.0.1",
-    "typescript": "^2.3.4"
+    "@types/pixi.js": "^4.5.7",
+    "publish-please": "^2.3.1",
+    "typescript": "^2.5.3"
   },
   "scripts": {
-    "demo": "npm run build && open demo/index.html",
-    "build": "tsc && browserify index.js -p tsify -s MultiStyleText -o dist/pixi-multistyle-text.js -d",
-    "prepublish": "npm run build",
-    "release": "standard-version"
+    "test": "npm run build && cd demo && webpack && open index.html",
+    "build": "tsc",
+    "publish-please": "publish-please",
+    "prepublishOnly": "publish-please guard"
   }
 }
