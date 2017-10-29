@@ -1,5 +1,5 @@
 {
-  "name": "pixi-multistyle-text-ohze",
+  "name": "@ohze/pixi-multistyle-text",
   "version": "1.0.0",
   "description": "Multi-Style Text for pixi.js",
   "module": "index.js",
