@@ -1,6 +1,6 @@
 {
   "name": "@ohze/pixi-multistyle-text",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Multi-Style Text for pixi.js",
   "module": "index.js",
   "repository": {
