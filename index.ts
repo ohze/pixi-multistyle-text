@@ -2,7 +2,39 @@
 
 "use strict";
 
-export interface ExtendedTextStyle extends PIXI.TextStyleOptions {
+export interface TextStyle {
+	align?: string;
+	breakWords?: boolean;
+	dropShadow?: boolean;
+	dropShadowAlpha?: number;
+	dropShadowAngle?: number;
+	dropShadowBlur?: number;
+	dropShadowColor?: string | number;
+	dropShadowDistance?: number;
+	fill?: string | string[] | number | number[] | CanvasGradient | CanvasPattern;
+	fillGradientType?: number;
+	fillGradientStops?: number[];
+	fontFamily?: string | string[];
+	fontSize?: number | string;
+	fontStyle?: string;
+	fontVariant?: string;
+	fontWeight?: string;
+	leading?: number;
+	letterSpacing?: number;
+	lineHeight?: number;
+	lineJoin?: string;
+	miterLimit?: number;
+	padding?: number;
+	stroke?: string | number;
+	strokeThickness?: number;
+	trim?: boolean;
+	textBaseline?: string;
+	whiteSpace?: string;
+	wordWrap?: boolean;
+	wordWrapWidth?: number;
+}
+
+export interface ExtendedTextStyle extends TextStyle {
 	valign?: "top" | "middle" | "bottom" | "baseline" | number;
 	debug?: boolean;
 }
@@ -51,6 +83,14 @@ export interface MstDebugOptions {
 		bounding?: string;
 		text?: boolean;
 	}
+}
+
+interface TextWithPrivateMembers extends PIXI.Text {
+	dirty: boolean;
+	_texture: PIXI.Texture;
+	_style: PIXI.TextStyle;
+	_onTextureUpdate(): void;
+	_generateFillStyle(style: object, lines: string[]): string | number | CanvasGradient;
 }
 
 export default class MultiStyleText extends PIXI.Text {
@@ -120,8 +160,8 @@ export default class MultiStyleText extends PIXI.Text {
 			}
 		}
 
-		this._style = new PIXI.TextStyle(this.textStyles["default"]);
-		this.dirty = true;
+		this.withPrivateMembers()._style = new PIXI.TextStyle(this.textStyles["default"]);
+		this.withPrivateMembers().dirty = true;
 	}
 
 	public setTagStyle(tag: string, style: ExtendedTextStyle): void {
@@ -131,8 +171,8 @@ export default class MultiStyleText extends PIXI.Text {
 			this.textStyles[tag] = this.assign({}, style);
 		}
 
-		this._style = new PIXI.TextStyle(this.textStyles["default"]);
-		this.dirty = true;
+		this.withPrivateMembers()._style = new PIXI.TextStyle(this.textStyles["default"]);
+		this.withPrivateMembers().dirty = true;
 	}
 
 	public deleteTagStyle(tag: string): void {
@@ -142,8 +182,8 @@ export default class MultiStyleText extends PIXI.Text {
 			delete this.textStyles[tag];
 		}
 
-		this._style = new PIXI.TextStyle(this.textStyles["default"]);
-		this.dirty = true;
+		this.withPrivateMembers()._style = new PIXI.TextStyle(this.textStyles["default"]);
+		this.withPrivateMembers().dirty = true;
 	}
 
 	protected _getTextDataPerLine (lines: string[]) {
@@ -242,8 +282,12 @@ export default class MultiStyleText extends PIXI.Text {
 		return maxDistance + maxBlur;
 	}
 
+	private withPrivateMembers(): TextWithPrivateMembers {
+		return ((this as any) as TextWithPrivateMembers);
+	}
+
 	public updateText(): void {
-		if (!this.dirty) {
+		if (!this.withPrivateMembers().dirty) {
 			return;
 		}
 
@@ -251,7 +295,7 @@ export default class MultiStyleText extends PIXI.Text {
 		let textStyles = this.textStyles;
 		let outputText = this.text;
 
-		if(this._style.wordWrap) {
+		if(this.withPrivateMembers()._style.wordWrap) {
 			outputText = this.wordWrap(this.text);
 		}
 
@@ -345,7 +389,7 @@ export default class MultiStyleText extends PIXI.Text {
 			let line = outputTextData[i];
 			let linePositionX: number;
 
-			switch (this._style.align) {
+			switch (this.withPrivateMembers()._style.align) {
 				case "left":
 					linePositionX = dropShadowPadding;
 					break;
@@ -483,7 +527,7 @@ export default class MultiStyleText extends PIXI.Text {
 					}
 				}
 			}
-			this.context.fillStyle = this._generateFillStyle(new PIXI.TextStyle(style), [text]) as string | CanvasGradient;
+			this.context.fillStyle = this.withPrivateMembers()._generateFillStyle(new PIXI.TextStyle(style), [text]) as string | CanvasGradient;
 			// Typecast required for proper typechecking
 
 			if (style.stroke && style.strokeThickness) {
@@ -578,7 +622,7 @@ export default class MultiStyleText extends PIXI.Text {
 		let tags = Object.keys(this.textStyles).join("|");
 		let re = new RegExp(`(<\/?(${tags})>)`, "g");
 		const lines = text.split("\n");
-		const wordWrapWidth = this._style.wordWrapWidth;
+		const wordWrapWidth = this.withPrivateMembers()._style.wordWrapWidth;
 		let styleStack = [this.assign({}, this.textStyles["default"])];
 		this.context.font = this.getFontString(this.textStyles["default"]);
 
@@ -609,7 +653,7 @@ export default class MultiStyleText extends PIXI.Text {
 
 					const partWidth = this.context.measureText(parts[k]).width;
 
-					if (this._style.breakWords && partWidth > spaceLeft) {
+					if (this.withPrivateMembers()._style.breakWords && partWidth > spaceLeft) {
 						if(partWidth >= wordWrapWidth){
 							let obj = this.sliceString(parts[k], spaceLeft, wordWrapWidth);
 							result += obj.str;
@@ -618,7 +662,7 @@ export default class MultiStyleText extends PIXI.Text {
                             result += `\n${parts[k]}` + " ";
                             spaceLeft = wordWrapWidth - partWidth;
 						}
-					} else if(this._style.breakWords) {
+					} else if(this.withPrivateMembers()._style.breakWords) {
 						result += parts[k];
                         spaceLeft -= partWidth;
 					} else {
@@ -697,32 +741,26 @@ export default class MultiStyleText extends PIXI.Text {
 	};
 
 	protected updateTexture() {
-		const texture = this._texture;
+		const texture = this.withPrivateMembers()._texture;
 
 		let dropShadowPadding = this.getDropShadowPadding();
 
-		texture.baseTexture.hasLoaded = true;
-		texture.baseTexture.resolution = this.resolution;
-
-		texture.baseTexture.realWidth = this.canvas.width;
-		texture.baseTexture.realHeight = this.canvas.height;
-		texture.baseTexture.width = this.canvas.width / this.resolution;
-		texture.baseTexture.height = this.canvas.height / this.resolution;
+		texture.baseTexture.setRealSize(this.canvas.width, this.canvas.height, this.resolution);
 		texture.trim.width = texture.frame.width = this.canvas.width / this.resolution;
 		texture.trim.height = texture.frame.height = this.canvas.height / this.resolution;
 
-		texture.trim.x = -this._style.padding - dropShadowPadding;
-		texture.trim.y = -this._style.padding - dropShadowPadding;
+		texture.trim.x = -this.withPrivateMembers()._style.padding - dropShadowPadding;
+		texture.trim.y = -this.withPrivateMembers()._style.padding - dropShadowPadding;
 
-		texture.orig.width = texture.frame.width - (this._style.padding + dropShadowPadding) * 2;
-		texture.orig.height = texture.frame.height - (this._style.padding + dropShadowPadding) * 2;
+		texture.orig.width = texture.frame.width - (this.withPrivateMembers()._style.padding + dropShadowPadding) * 2;
+		texture.orig.height = texture.frame.height - (this.withPrivateMembers()._style.padding + dropShadowPadding) * 2;
 
 		// call sprite onTextureUpdate to update scale if _width or _height were set
-		this._onTextureUpdate();
+		this.withPrivateMembers()._onTextureUpdate();
 
 		texture.baseTexture.emit('update', texture.baseTexture);
 
-		this.dirty = false;
+		this.withPrivateMembers().dirty = false;
 	}
 
 	// Lazy fill for Object.assign
